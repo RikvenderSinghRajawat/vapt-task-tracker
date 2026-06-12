@@ -1,0 +1,58 @@
+Module,Permission,Super Admin,Admin,VAPT Analyst,VAPT TL,Project Manager,Developer,Business Analyst,Read Only (Client/Auditor)
+Users,View All Users,✓,✓,✓,✓,✓,,,
+Users,Create Users (non-Admin),✓,✓,✓,✓,,,,
+Users,Edit Users (non-Admin),✓,✓,✓,✓,✓,,,
+Users,Delete Users (non-Admin),✓,✓,✓,✓,,,,
+Users,Create/Edit/Delete Admin/SA,✓,✓,,,N/A,N/A,N/A,N/A
+Users,Reset Passwords (non-Admin),✓,✓,✓,✓,,,,
+Users,Reset Admin/SA Passwords,✓,✓,,,,,,
+Projects,View All Projects,✓,✓,✓,✓,Own Only,Own Only,View Only,View Only
+Projects,Create Projects,✓,✓,✓,✓,,,,
+Projects,Edit Any Project,✓,✓,✓,✓,Own Only,,,
+Projects,Delete Projects,✓,✓,✓,✓,,,,
+Projects,Allocate Team Members,✓,✓,✓,✓,✓,,,
+Findings,View All Findings,✓,✓,✓,✓,Project Scope,Project Scope,View Only,View Only
+Findings,Create Findings,✓,✓,✓,✓,,,,
+Findings,Edit Findings,✓,✓,✓,✓,Project Scope,,,
+Findings,Delete Findings,✓,✓,✓,✓,,,,
+Findings,Bulk Operations,✓,✓,✓,✓,✓,,,
+Findings,Close/Reopen Findings,✓,✓,✓,✓,,,,
+Reports,View All Reports,✓,✓,✓,✓,,✓,View Only
+Reports,Upload Reports,✓,✓,✓,✓,,,,
+Reports,Delete Reports,✓,✓,✓,✓,,,,
+Reports,Download Reports,✓,✓,✓,✓,,,,
+MIS (My),View Own Entries,✓,✓,✓,✓,✓,✓,✓,✓
+MIS (My),Create/Edit/Delete Own Entries,✓,✓,✓,✓,✓,✓,✓,✓
+MIS (All Users),View All Entries,✓,✓,✓,✓,,,,
+MIS (All Users),Edit Others' Entries,✓,✓,,,,,,
+Tasks,View Own Tasks,✓,✓,✓,✓,✓,✓,✓,✓
+Tasks,View All Users' Tasks,✓,✓,✓,✓,,,,
+Tasks,Create Tasks,✓,✓,✓,✓,✓,,,
+Tasks,Assign Tasks to Others,✓,✓,✓,✓,✓,,,
+Tasks,Edit/Delete Any Task,✓,✓,✓,✓,Own Only,,,
+Tasks,Manage Team Tasks,✓,✓,✓,✓,✓,,,
+Analytics,View Dashboard,✓,✓,✓,✓,✓,✓,✓,✓
+Analytics,View Team Performance,✓,✓,✓,✓,,,,
+Analytics,View User Stats,✓,✓,✓,✓,,,,
+Notifications,View Own Notifications,✓,✓,✓,✓,✓,✓,✓,✓
+Notifications,Manage All Notifications,✓,✓,✓,✓,,,,
+Audit Logs,View/Search/Export,✓,✓,✓,✓,,,,
+Audit Logs,Delete/Purge,✓,,,,,,
+Recycle Bin,View,✓,✓,✓,✓,,,,
+Recycle Bin,Restore/Purge,✓,✓,✓,✓,,,,
+VAPT Calendar,View,✓,✓,✓,✓,,,,
+VAPT Calendar,Create/Edit/Delete,✓,✓,✓,✓,,,,
+Quarterly Audits,View,✓,✓,✓,✓,,,,
+Quarterly Audits,Upload/Delete,✓,✓,✓,✓,,,,
+Support Center,Create Tickets,✓,✓,✓,✓,✓,✓,✓,✓
+Support Center,View Own Tickets,✓,✓,✓,✓,✓,✓,✓,✓
+Support Center,Manage All Tickets,✓,✓,✓,✓,,,,
+Requests,View Pending,✓,✓,✓,✓,✓,,,
+Requests,Approve/Reject,✓,✓,✓,✓,✓,,,
+System Info,View,✓,✓,✓,✓,,,,
+System Info,Clear Cache,✓,,,,,,
+Team Workload,View,✓,✓,✓,✓,✓,,,
+Notes,View Own Notes,✓,✓,✓,✓,✓,✓,✓,✓
+Notes,View Shared Notes,✓,✓,✓,✓,✓,✓,✓,✓
+Notes,View Others' Private Notes,,,,,,,,,
+Firewall Logs,View,✓,✓,✓,✓,,,,

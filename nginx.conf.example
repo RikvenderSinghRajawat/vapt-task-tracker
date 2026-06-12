@@ -1,0 +1,105 @@
+# ================================================================
+# eKavach VAPT Tracker — Nginx Reverse Proxy Example
+# ================================================================
+# Copy to /etc/nginx/sites-available/ekavach
+# Usage: sudo ln -s /etc/nginx/sites-available/ekavach /etc/nginx/sites-enabled/
+#        sudo nginx -t && sudo systemctl reload nginx
+# ================================================================
+
+upstream ekavach_backend {
+    server 127.0.0.1:5000;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    # ── Security: hide version ─────────────────────────────────
+    server_tokens off;
+
+    client_max_body_size 50M;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
+
+    # ── Deny hidden & sensitive files ─────────────────────────
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    location ~ \.(env|env\.example|env\.production\.example|gitignore|md|log|bak|backup|sql|dump)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # ── Gzip ──────────────────────────────────────────────────
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_types
+        text/plain
+        text/css
+        text/javascript
+        application/json
+        application/javascript
+        application/xml
+        image/svg+xml
+        text/xml;
+
+    # ── Security Headers ──────────────────────────────────────
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+    # ── API Proxy ─────────────────────────────────────────────
+    location /api/ {
+        proxy_pass http://ekavach_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_buffering off;
+    }
+
+    # ── Uploads / File Storage ────────────────────────────────
+    location /uploads/ {
+        proxy_pass http://ekavach_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_buffering off;
+    }
+
+    # ── Socket.IO ─────────────────────────────────────────────
+    location /socket.io/ {
+        proxy_pass http://ekavach_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_buffering off;
+    }
+
+    # ── Frontend Static Files ────────────────────────────────
+    location / {
+        root /var/www/ekavach/frontend/build;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}

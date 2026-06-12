@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= cover.application_name %> - Security Assessment Report</title>
+<style><%- css %></style>
+</head>
+<body>
+<div class="watermark"><%= cover.watermark %></div>
+<div class="container">
+
+<!-- Cover Page -->
+<div class="cover-page">
+    <div class="cover-content">
+        <div class="cover-subtitle">APPLICATION SECURITY ASSESSMENT</div>
+        <h1 class="cover-title"><%= cover.application_name %></h1>
+        <div class="cover-meta">
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-label">Report ID</span><span class="meta-value"><%= cover.report_id %></span></div>
+                <div class="meta-item"><span class="meta-label">Assessment Date</span><span class="meta-value"><%= new Date(cover.assessment_date).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %></span></div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-label">Application Name</span><span class="meta-value"><%= cover.application_name %></span></div>
+                <div class="meta-item"><span class="meta-label">Package Name</span><span class="meta-value"><%= cover.package_name %></span></div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value"><%= cover.version %></span></div>
+                <div class="meta-item"><span class="meta-label">Assessment Type</span><span class="meta-value"><%= cover.assessment_type %></span></div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-label">Security Score</span><span class="meta-value"><%= cover.security_score.score %>/<%= cover.security_score.max_score %> (<%= cover.security_score.risk_level %> RISK)</span></div>
+                <div class="meta-item"><span class="meta-label">Assessor</span><span class="meta-value"><%= cover.assessor %></span></div>
+            </div>
+        </div>
+        <% if (cover.apk_checksum && cover.apk_checksum.md5) { %>
+        <div class="apk-checksum-badge">
+            <span class="chk-label">MD5</span><span class="chk-sep"></span><span class="chk-hash"><%= cover.apk_checksum.md5 %></span>
+        </div>
+        <% } %>
+        <div class="seal-stamp">
+            <div class="seal-stamp-outer"><div class="seal-stamp-inner">
+                <div class="seal-stamp-icon">&#128274;</div>
+                <div class="seal-stamp-text"><%= cover.classification || 'CONFIDENTIAL' %></div>
+                <div class="seal-stamp-sub">SECURITY REPORT</div>
+            </div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Executive Summary -->
+<section>
+    <h2>Executive Summary</h2>
+    <div class="card">
+        <h3>Assessment Scope</h3>
+        <p><strong>Application:</strong> <%= executive_summary.scope.application %></p>
+        <p><strong>Version:</strong> <%= executive_summary.scope.version %></p>
+        <p><strong>Base URL:</strong> <%= executive_summary.scope.base_url %></p>
+        <p><strong>Environment:</strong> <%= executive_summary.scope.environment %></p>
+        <h3>Assessment Overview</h3>
+        <p><%= executive_summary.overview %></p>
+        <h3>Findings Distribution</h3>
+        <div class="stats-grid">
+            <div class="stat-box stat-critical"><span class="stat-count"><%= executive_summary.findings_distribution.critical %></span><span class="stat-label">Critical</span></div>
+            <div class="stat-box stat-high"><span class="stat-count"><%= executive_summary.findings_distribution.high %></span><span class="stat-label">High</span></div>
+            <div class="stat-box stat-medium"><span class="stat-count"><%= executive_summary.findings_distribution.medium %></span><span class="stat-label">Medium</span></div>
+            <div class="stat-box stat-low"><span class="stat-count"><%= executive_summary.findings_distribution.low + executive_summary.findings_distribution.info %></span><span class="stat-label">Low/Info</span></div>
+        </div>
+        <% if (executive_summary.business_impact && executive_summary.business_impact.length) { %>
+        <h3>Business Impact Assessment</h3>
+        <div class="impact-grid">
+            <% executive_summary.business_impact.forEach(function(imp) { %>
+            <div class="impact-item"><span class="impact-label"><%= imp.icon %> <%= imp.label %></span><span><%= imp.description %></span></div>
+            <% }); %>
+        </div>
+        <% } %>
+        <% if (executive_summary.attack_scenarios && executive_summary.attack_scenarios.length) { %>
+        <h3>Attack Scenarios</h3>
+        <% executive_summary.attack_scenarios.forEach(function(sc) { %>
+        <div class="attack-scenario"><h4><%= sc.title %></h4><p><strong>Attack Chain:</strong> <%= sc.attack_chain %></p><p><strong>Impact:</strong> <%= sc.impact %></p></div>
+        <% }); %>
+        <% } %>
+    </div>
+</section>
+
+<!-- Methodology -->
+<section>
+    <h2>Assessment Methodology</h2>
+    <div class="card">
+        <h3>Testing Scope</h3>
+        <ul><% methodology.testing_scope.forEach(function(s) { %><li><strong><%= s.name %>:</strong> <%= s.description %></li><% }); %></ul>
+        <h3>Testing Tools &amp; Frameworks</h3>
+        <div class="table-wrapper"><table><tr><th>Category</th><th>Tools Used</th></tr>
+        <% methodology.tools.forEach(function(t) { %><tr><td><%= t.category %></td><td><%= t.tools_used %></td></tr><% }); %>
+        </table></div>
+    </div>
+</section>
+
+<!-- Findings -->
+<section>
+    <h2>Security Vulnerabilities (Ranked by CVSS Score)</h2>
+    <% findings.forEach(function(f, i) { %>
+    <div class="card vulnerability-card <%= f.severity %>">
+        <span class="badge badge-<%= f.severity %>"><%= f.severity.charAt(0).toUpperCase() + f.severity.slice(1) %> | CVSS <%= f.cvss_score %></span>
+        <h3><%= i+1 %>. <%= f.title %></h3>
+        <p><strong>Category:</strong> <%= f.category.name %> (<%= f.category.owasp_category %>) | <strong><%= f.cwe.map(function(c){return c.id}).join(', ') %></strong></p>
+        <p><strong>Location:</strong> <code><%= f.location %></code></p>
+        <h4>Description</h4><p><%= f.description %></p>
+        <% if (f.evidence) { %><h4><%= f.evidence.title || 'Evidence of Exploitation' %></h4><pre><code><%- f.evidence.code %></code></pre><% } %>
+        <% if (f.proof_of_concept) { %><h4><%= f.proof_of_concept.title || 'Proof of Concept' %></h4><pre><code><%- f.proof_of_concept.code %></code></pre><% } %>
+        <h4>Remediation Steps</h4>
+        <ol><% f.remediation.forEach(function(r) { %><li><%= r %></li><% }); %></ol>
+        <% if (f.v1_v2_status) { %>
+        <div class="footer-info"><strong><%= cover.previous_version || 'V1' %> vs <%= cover.version %> Status:</strong> <%= f.v1_v2_status.description %></div>
+        <% } %>
+    </div>
+    <% }); %>
+</section>
+
+<!-- Version Comparison (conditional) -->
+<% if (version_comparison) { %>
+<section>
+    <h2>V<%= version_comparison.previous_version %> vs V<%= version_comparison.current_version %> Comparison - VERIFIED</h2>
+    <div class="card">
+        <h3>Verified Vulnerability Status Comparison</h3>
+        <div class="table-wrapper"><table>
+            <thead><tr><th>Vulnerability</th><th>V<%= version_comparison.previous_version %> Status</th><th>V<%= version_comparison.current_version %> Status</th><th>Verification</th><th>Improvement</th></tr></thead>
+            <tbody><% version_comparison.entries.forEach(function(e) { %>
+            <tr>
+                <td><%= e.vulnerability %></td>
+                <td><span class="severity-badge <%= e.previous_status.severity %>"><%= e.previous_status.badge_text || e.previous_status.severity %></span></td>
+                <td><span class="severity-badge <%= e.current_status.severity %>"><%= e.current_status.badge_text || e.current_status.severity %></span></td>
+                <td><%= e.verification.label %></td>
+                <td><%= e.improvement.label %></td>
+            </tr><% }); %></tbody>
+        </table></div>
+        <% if (version_comparison.summary) { %><p><%= version_comparison.summary %></p><% } %>
+    </div>
+</section>
+<% } %>
+
+<!-- API Analysis -->
+<% if (api_analysis) { %>
+<section>
+    <h2>API Endpoints Security Analysis</h2>
+    <div class="card high">
+        <h3>Discovered API Endpoints</h3><span class="severity-badge high">HIGH</span>
+        <p><strong>Critical Security Issues:</strong></p>
+        <ul><% api_analysis.critical_issues.forEach(function(ci) { %><li><%= ci %></li><% }); %></ul>
+        <div class="table-wrapper"><table>
+            <thead><tr><th>Endpoint</th><th>Method</th><th>Protocol</th><th>Issues</th></tr></thead>
+            <tbody><% api_analysis.endpoints.forEach(function(ep) { %>
+            <tr><td class="font-mono"><%= ep.url %></td><td><%= ep.method %></td><td><span class="severity-badge <%= ep.protocol === 'http' ? 'high' : 'low' %>"><%= ep.protocol.toUpperCase() %></span></td><td><%= (ep.issues && ep.issues.length) ? ep.issues.join(', ') : '-' %></td></tr>
+            <% }); %></tbody>
+        </table></div>
+        <p><strong>Security Recommendations:</strong></p>
+        <ul><% api_analysis.recommendations.forEach(function(rec) { %><li><%= rec %></li><% }); %></ul>
+    </div>
+</section>
+<% } %>
+
+<!-- Compliance -->
+<% if (compliance) { %>
+<section>
+    <h2>Compliance Assessment</h2>
+    <div class="card high">
+        <h3>Regulatory Compliance Status</h3><span class="severity-badge high">HIGH</span>
+        <div class="table-wrapper"><table>
+            <thead><tr><th>Compliance Standard</th><th>Status</th><th>Issues</th></tr></thead>
+            <tbody><% compliance.entries.forEach(function(c) { %>
+            <tr><td><%= c.standard %></td><td><span class="severity-badge <%= c.status === 'compliant' ? 'low' : c.status === 'partially_compliant' ? 'medium' : 'critical' %>"><%= c.status.replace(/_/g,' ').toUpperCase() %></span></td><td><%= c.issues %></td></tr>
+            <% }); %></tbody>
+        </table></div>
+    </div>
+</section>
+<% } %>
+
+<!-- Conclusion -->
+<section>
+    <h2>Conclusion</h2>
+    <div class="card critical">
+        <h3>Final Assessment</h3><span class="severity-badge critical">CRITICAL</span>
+        <p><strong><%= conclusion.assessment_text %></strong></p>
+        <div class="mt-3"><h4>Key Findings:</h4><ul><% conclusion.key_findings.forEach(function(kf) { %><li><strong><%= kf %></strong></li><% }); %></ul></div>
+        <div class="mt-3"><h4>Immediate Actions Required:</h4><ol><% conclusion.immediate_actions.forEach(function(ia) { %><li><strong><%= ia %></strong></li><% }); %></ol></div>
+        <div class="mt-3"><p><strong>Recommendation:</strong> <%= conclusion.recommendation %></p></div>
+    </div>
+</section>
+
+<div class="page-break"></div>
+
+<!-- Appendix -->
+<section>
+    <h2>Appendix</h2>
+    <div class="card info">
+        <h3>Technical Details</h3><span class="severity-badge info">INFO</span>
+        <h4>Application Information:</h4>
+        <div class="table-wrapper"><table>
+            <thead><tr><th>Property</th><th>Value</th></tr></thead>
+            <tbody><% appendix.application_info.forEach(function(ai) { %>
+            <tr><td><%= ai.property %></td><td class="<%= ai.property.includes('Hash') || ai.property.includes('MD5') ? 'font-mono' : '' %>"><%= ai.value %></td></tr>
+            <% }); %></tbody>
+        </table></div>
+        <h4 class="mt-3">Testing Methodology:</h4>
+        <ul><% appendix.testing_methodology.forEach(function(tm) { %><li><strong><%= tm.name %>:</strong> <%= tm.description %></li><% }); %></ul>
+        <h4 class="mt-3">Tools Used:</h4>
+        <ul><% appendix.tools_used.forEach(function(tu) { %><li><%= tu %></li><% }); %></ul>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <div class="no-print">
+        <p><strong><%= footer.report_title || 'Security Assessment Report' %></strong></p>
+        <p>Generated on <%= footer.generated_date || new Date().toISOString().split('T')[0] %> | Classification: <%= footer.classification || cover.classification || 'CONFIDENTIAL' %></p>
+        <p><%= footer.organization || cover.organization || '' %></p>
+    </div>
+    <div class="watermark"><%= cover.watermark %></div>
+</footer>
+
+</body>
+</html>
